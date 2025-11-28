@@ -13,5 +13,7 @@ declare module 'expo-media-library' {
     (options?: { requestAgain?: boolean }) => Promise<MediaLibraryPermissionResponse>
   ];
 
+  export function requestPermissionsAsync(): Promise<MediaLibraryPermissionResponse>;
+
   export function saveToLibraryAsync(assetUri: string): Promise<void>;
 }
