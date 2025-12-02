@@ -1,5 +1,10 @@
 {
   "expo": {
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "name": "NIDHISETU",
     "slug": "NIDHISETU",
     "version": "1.0.0",
@@ -12,6 +17,14 @@
       "supportsTablet": true
     },
     "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
       "googleServicesFile": "./google-services.json",
       "package": "com.deepankar.nidhisetu",
       "adaptiveIcon": {
@@ -48,6 +61,12 @@
         "projectId": "909c86ec-c36c-484b-8fd1-4cf65df55a71"
       }
     },
-    "owner": "deepankar68"
+    "owner": "deepankar68",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/909c86ec-c36c-484b-8fd1-4cf65df55a71"
+    }
   }
 }
