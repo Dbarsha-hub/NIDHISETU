@@ -17,10 +17,10 @@ const toLoanModel = (record: BeneficiaryRecord): BeneficiaryLoan => ({
   name: record.fullName,
   mobile: record.mobile,
   bank: record.bankName || 'NA',
-  scheme: record.schemeName || 'NA',
+  scheme: record.assetName || record.schemeName || 'NA',
   loanAmount: Number(record.sanctionAmount ?? 0),
   sanctionDate: record.sanctionDate || record.metadata?.createdAt || '—',
-  status: 'sanctioned',
+  status: (record.metadata?.status?.toLowerCase() === 'active' ? 'sanctioned' : record.metadata?.status?.toLowerCase()) as any || 'sanctioned',
 });
 
 export const useOfficerBeneficiaries = () => {

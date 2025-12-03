@@ -22,9 +22,10 @@ export type BeneficiaryDrawerParamList = {
 
 export type OfficerStackParamList = {
   OfficerDashboard: undefined;
-  Beneficiaries: undefined;
+  Beneficiaries: { filter?: string } | undefined;
   BeneficiaryForm: undefined;
   VerificationTasks: undefined;
+  VerificationDetail: { beneficiaryId: string } | undefined;
   Reports: undefined;
   Notifications: undefined;
   Profile: undefined;

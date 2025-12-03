@@ -19,6 +19,40 @@ const cleanContext = (context?: OfficerContext): OfficerContext | undefined => {
 
 const normalizeMobile = (mobile: string) => mobile.replace(/[^0-9]/g, '');
 
+const toDbPayload = (payload: BeneficiaryFormPayload & { id: string; metadata: BeneficiaryMetadata }) => {
+  return {
+    id: payload.id,
+    full_name: payload.fullName,
+    aadhaar: payload.aadhaar,
+    address: payload.address,
+    asset_name: payload.assetName,
+    asset_value: payload.assetValue,
+    bank_name: payload.bankName,
+    sanction_amount: payload.sanctionAmount,
+    village: payload.village,
+    mobile: payload.mobile,
+    metadata: payload.metadata,
+  };
+};
+
+const fromDbRecord = (record: any): BeneficiaryRecord => {
+  return {
+    id: record.id,
+    fullName: record.full_name,
+    aadhaar: record.aadhaar,
+    address: record.address,
+    assetName: record.asset_name,
+    assetValue: record.asset_value,
+    bankName: record.bank_name,
+    sanction_amount: record.sanction_amount,
+    village: record.village,
+    mobile: record.mobile,
+    metadata: record.metadata || {},
+    // Map other fields if necessary or leave them undefined as they are optional in BeneficiaryFormPayload
+    schemeName: record.scheme_name, // If we decide to add it back
+  } as BeneficiaryRecord;
+};
+
 const saveDraft = async (formValues: BeneficiaryFormPayload, metadata: BeneficiaryMetadata): Promise<BeneficiaryRecord> => {
   if (!supabase) throw new Error('Supabase not initialized');
 
@@ -35,19 +69,21 @@ const saveDraft = async (formValues: BeneficiaryFormPayload, metadata: Beneficia
     ...metadata,
     ...(context ? { createdBy: context } : {}),
   };
-  const record: BeneficiaryRecord = {
+  
+  const recordToSave = {
     ...sanitizedValues,
     id: normalizedMobile,
     metadata: metadataToPersist,
   };
-  const { id, ...persistable } = record;
+
+  const dbPayload = toDbPayload(recordToSave);
   
   const { error } = await supabase
     .from(COLLECTION_NAME)
-    .upsert({ id: normalizedMobile, ...persistable });
+    .upsert(dbPayload);
 
   if (error) throw error;
-  return { ...record, id: normalizedMobile };
+  return { ...recordToSave, id: normalizedMobile };
 };
 
 const getRecordByMobile = async (mobile: string): Promise<BeneficiaryRecord | null> => {
@@ -68,7 +104,7 @@ const getRecordByMobile = async (mobile: string): Promise<BeneficiaryRecord | nu
     if (error.code === 'PGRST116') return null;
     throw error;
   }
-  return data as BeneficiaryRecord;
+  return fromDbRecord(data);
 };
 
 const getProfileByMobile = async (mobile: string): Promise<BeneficiaryProfile | null> => {
@@ -94,10 +130,55 @@ const listRecords = async (): Promise<BeneficiaryRecord[]> => {
   const { data, error } = await supabase
     .from(COLLECTION_NAME)
     .select('*')
-    .order('metadata->createdAt', { ascending: false });
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as BeneficiaryRecord[];
+  return data.map(fromDbRecord);
+};
+
+const updateStatus = async (mobile: string, status: string, reason?: string): Promise<void> => {
+  if (!supabase) throw new Error('Supabase not initialized');
+  const record = await getRecordByMobile(mobile);
+  if (!record) throw new Error('Beneficiary not found');
+
+  const updatedMetadata = {
+    ...record.metadata,
+    status,
+    statusReason: reason,
+    updatedAt: new Date().toISOString(),
+    timeline: [
+      ...(record.metadata.timeline || []),
+      { status, reason, timestamp: new Date().toISOString() }
+    ]
+  };
+
+  const { error } = await supabase
+    .from(COLLECTION_NAME)
+    .update({ metadata: updatedMetadata })
+    .eq('id', mobile);
+
+  if (error) throw error;
+};
+
+const addNote = async (mobile: string, note: string, author: string): Promise<void> => {
+  if (!supabase) throw new Error('Supabase not initialized');
+  const record = await getRecordByMobile(mobile);
+  if (!record) throw new Error('Beneficiary not found');
+
+  const updatedMetadata = {
+    ...record.metadata,
+    notes: [
+      ...(record.metadata.notes || []),
+      { text: note, author, timestamp: new Date().toISOString() }
+    ]
+  };
+
+  const { error } = await supabase
+    .from(COLLECTION_NAME)
+    .update({ metadata: updatedMetadata })
+    .eq('id', mobile);
+
+  if (error) throw error;
 };
 
 const subscribeToRecords = (onData: (records: BeneficiaryRecord[]) => void, onError?: (error: Error) => void) => {
@@ -160,7 +241,7 @@ const subscribeToRecord = (
         if (payload.eventType === 'DELETE') {
           onData(null);
         } else {
-          onData(payload.new as BeneficiaryRecord);
+          onData(fromDbRecord(payload.new));
         }
       }
     )
@@ -177,6 +258,8 @@ export const beneficiaryRepository = {
   getRecordByMobile,
   getProfileByMobile,
   listRecords,
+  updateStatus,
+  addNote,
   subscribeToRecords,
   subscribeToRecord,
 };
