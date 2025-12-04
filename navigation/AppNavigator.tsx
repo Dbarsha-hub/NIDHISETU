@@ -35,6 +35,8 @@ import { UploadEvidenceScreen } from '@/screens/beneficiary/upload-evidence-scre
 import { BeneficiaryFormScreen } from '@/screens/officer/beneficiary-form-screen';
 import { BeneficiaryListScreen } from '@/screens/officer/beneficiary-list-screen';
 import { OfficerDashboardScreen } from '@/screens/officer/dashboard-screen';
+import { VerificationDetailScreen } from '@/screens/officer/verification-detail-screen';
+import { VerificationTasksScreen } from '@/screens/officer/verification-tasks-screen';
 import { ReviewerDashboardScreen } from '@/screens/reviewer/dashboard-screen';
 import { ReviewDetailScreen } from '@/screens/reviewer/review-detail-screen';
 import { ReviewerSubmissionListScreen } from '@/screens/reviewer/submission-list-screen';
@@ -316,8 +318,17 @@ const OfficerNavigator = () => {
       <OfficerDrawer.Screen name="BeneficiaryForm" component={BeneficiaryFormScreen} options={{ title: 'Add Beneficiary' }} />
       <OfficerDrawer.Screen
         name="VerificationTasks"
-        component={require('@/screens/officer/verification-tasks-screen').VerificationTasksScreen}
+        component={VerificationTasksScreen}
         options={{ title: 'Verification Tasks' }}
+      />
+      <OfficerDrawer.Screen
+        name="VerificationDetail"
+        component={VerificationDetailScreen}
+        options={{
+          title: 'Verification Detail',
+          drawerItemStyle: { display: 'none' },
+          headerShown: false,
+        }}
       />
       <OfficerDrawer.Screen
         name="Reports"

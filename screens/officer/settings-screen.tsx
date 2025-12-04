@@ -5,6 +5,7 @@ import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-na
 import { AppButton } from '@/components/atoms/app-button';
 import { AppText } from '@/components/atoms/app-text';
 import { InputField } from '@/components/atoms/input-field';
+import { WaveHeader } from '@/components/molecules/wave-header';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useOfficerProfile } from '@/hooks/use-officer-profile';
 import { useAuthStore } from '@/state/authStore';
@@ -55,109 +56,130 @@ export const SettingsScreen = () => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}
-      style={{ backgroundColor: theme.colors.background }}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="headlineMedium" color="text">Profile & Account</AppText>
-      <AppText variant="bodyMedium" color="muted">
-        Update your officer details. Changes sync in real time for all devices.
-      </AppText>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <WaveHeader
+        title="Settings"
+        subtitle="Manage your profile and preferences"
+        height={180}
+      />
 
-      <View style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-        {isLoading ? (
-          <ActivityIndicator color={theme.colors.primary} />
-        ) : (
-          <View style={{ gap: theme.spacing.md }}>
-            <Controller
-              control={control}
-              name="name"
-              rules={{ required: 'Name is required' }}
-              render={({ field: { onChange, value }, fieldState }) => (
-                <InputField
-                  label="Full Name"
-                  placeholder="Officer name"
-                  value={value}
-                  onChangeText={onChange}
-                  errorText={fieldState.error?.message}
-                  leftIcon="account"
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="mobile"
-              rules={{
-                required: 'Mobile number is required',
-                pattern: {
-                  value: /^[0-9]{10}$/,
-                  message: 'Enter a 10-digit mobile number',
-                },
-              }}
-              render={({ field: { onChange, value }, fieldState }) => (
-                <InputField
-                  label="Phone"
-                  placeholder="Contact number"
-                  keyboardType="phone-pad"
-                  value={value}
-                  onChangeText={onChange}
-                  errorText={fieldState.error?.message}
-                  leftIcon="phone"
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="designation"
-              rules={{ required: 'Designation is required' }}
-              render={({ field: { onChange, value }, fieldState }) => (
-                <InputField
-                  label="Designation"
-                  placeholder="District Lead"
-                  value={value}
-                  onChangeText={onChange}
-                  errorText={fieldState.error?.message}
-                  leftIcon="badge-account"
-                />
-              )}
-            />
-            {error ? (
-              <AppText variant="labelSmall" color="error">
-                {error}
-              </AppText>
-            ) : null}
-            <AppButton
-              label={isSaving ? 'Saving...' : 'Save Changes'}
-              icon="content-save"
-              onPress={onSubmit}
-              disabled={!formState.isDirty || isSaving}
-            />
-          </View>
-        )}
-      </View>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+          <AppText variant="titleMedium" color="text" weight="600" style={{ marginBottom: 16 }}>
+            Profile Details
+          </AppText>
 
-      <View style={[styles.card, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-        <AppText variant="titleMedium" color="text">Session</AppText>
-        <AppText variant="bodySmall" color="muted">
-          Securely sign out from this device.
-        </AppText>
-        <AppButton label="Logout" icon="logout" variant="outline" onPress={handleLogout} />
-      </View>
-    </ScrollView>
+          {isLoading ? (
+            <ActivityIndicator color={theme.colors.primary} />
+          ) : (
+            <View style={{ gap: 16 }}>
+              <Controller
+                control={control}
+                name="name"
+                rules={{ required: 'Name is required' }}
+                render={({ field: { onChange, value }, fieldState }) => (
+                  <InputField
+                    label="Full Name"
+                    placeholder="Officer name"
+                    value={value}
+                    onChangeText={onChange}
+                    errorText={fieldState.error?.message}
+                    leftIcon="account"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="mobile"
+                rules={{
+                  required: 'Mobile number is required',
+                  pattern: {
+                    value: /^[0-9]{10}$/,
+                    message: 'Enter a 10-digit mobile number',
+                  },
+                }}
+                render={({ field: { onChange, value }, fieldState }) => (
+                  <InputField
+                    label="Phone"
+                    placeholder="Contact number"
+                    keyboardType="phone-pad"
+                    value={value}
+                    onChangeText={onChange}
+                    errorText={fieldState.error?.message}
+                    leftIcon="phone"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="designation"
+                rules={{ required: 'Designation is required' }}
+                render={({ field: { onChange, value }, fieldState }) => (
+                  <InputField
+                    label="Designation"
+                    placeholder="District Lead"
+                    value={value}
+                    onChangeText={onChange}
+                    errorText={fieldState.error?.message}
+                    leftIcon="badge-account"
+                  />
+                )}
+              />
+              {error ? (
+                <AppText variant="labelSmall" color="error">
+                  {error}
+                </AppText>
+              ) : null}
+              <AppButton
+                label={isSaving ? 'Saving...' : 'Save Changes'}
+                icon="content-save"
+                onPress={onSubmit}
+                disabled={!formState.isDirty || isSaving}
+              />
+            </View>
+          )}
+        </View>
+
+        <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+          <AppText variant="titleMedium" color="text" weight="600" style={{ marginBottom: 8 }}>
+            Session
+          </AppText>
+          <AppText variant="bodySmall" color="muted" style={{ marginBottom: 16 }}>
+            Securely sign out from this device.
+          </AppText>
+          <AppButton
+            label="Logout"
+            icon="logout"
+            variant="outline"
+            onPress={handleLogout}
+            style={{ borderColor: theme.colors.error }}
+            textStyle={{ color: theme.colors.error }}
+          />
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
+  },
+  content: {
     padding: 16,
     gap: 16,
+    paddingBottom: 40,
   },
   card: {
-    padding: 16,
     borderRadius: 16,
-    borderWidth: 1,
-    gap: 12,
+    padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
 });
