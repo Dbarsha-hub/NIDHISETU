@@ -1,9 +1,9 @@
 import { supabase } from '@/lib/supabaseClient';
 import type {
-    BeneficiaryFormPayload,
-    BeneficiaryMetadata,
-    BeneficiaryRecord,
-    OfficerContext,
+  BeneficiaryFormPayload,
+  BeneficiaryMetadata,
+  BeneficiaryRecord,
+  OfficerContext,
 } from '@/types/beneficiary';
 import type { BeneficiaryProfile } from '@/types/entities';
 
@@ -42,15 +42,17 @@ const fromDbRecord = (record: any): BeneficiaryRecord => {
     aadhaar: record.aadhaar,
     address: record.address,
     assetName: record.asset_name,
-    assetValue: record.asset_value,
+    assetValue: Number(record.asset_value) || 0,
     bankName: record.bank_name,
-    sanction_amount: record.sanction_amount,
+    sanctionAmount: Number(record.sanction_amount) || 0,
+    disbursedAmount: Number(record.disbursed_amount) || 0,
+    emiAmount: Number(record.emi_amount) || 0,
     village: record.village,
     mobile: record.mobile,
     metadata: record.metadata || {},
-    // Map other fields if necessary or leave them undefined as they are optional in BeneficiaryFormPayload
-    schemeName: record.scheme_name, // If we decide to add it back
-  } as BeneficiaryRecord;
+    schemeName: record.scheme_name,
+    district: record.district,
+  };
 };
 
 const saveDraft = async (formValues: BeneficiaryFormPayload, metadata: BeneficiaryMetadata): Promise<BeneficiaryRecord> => {
@@ -117,10 +119,10 @@ const getProfileByMobile = async (mobile: string): Promise<BeneficiaryProfile | 
     name: record.fullName,
     mobile: record.mobile,
     role: 'beneficiary',
-    village: record.village,
-    district: record.district,
-    bank: record.bankName,
-    scheme: record.schemeName,
+    village: record.village ?? '',
+    district: record.district ?? '',
+    bank: record.bankName ?? '',
+    scheme: record.schemeName ?? '',
   };
 };
 
@@ -182,7 +184,8 @@ const addNote = async (mobile: string, note: string, author: string): Promise<vo
 };
 
 const subscribeToRecords = (onData: (records: BeneficiaryRecord[]) => void, onError?: (error: Error) => void) => {
-  if (!supabase) {
+  const client = supabase;
+  if (!client) {
     onData([]);
     return () => undefined;
   }
@@ -191,7 +194,7 @@ const subscribeToRecords = (onData: (records: BeneficiaryRecord[]) => void, onEr
     .then(onData)
     .catch((err) => onError?.(err instanceof Error ? err : new Error(String(err))));
 
-  const channel = supabase
+  const channel = client
     .channel('public:beneficiaries')
     .on(
       'postgres_changes',
@@ -209,7 +212,7 @@ const subscribeToRecords = (onData: (records: BeneficiaryRecord[]) => void, onEr
     .subscribe();
 
   return () => {
-    supabase.removeChannel(channel);
+    client.removeChannel(channel);
   };
 };
 
@@ -218,7 +221,8 @@ const subscribeToRecord = (
   onData: (record: BeneficiaryRecord | null) => void,
   onError?: (error: Error) => void
 ) => {
-  if (!recordId || !supabase) {
+  const client = supabase;
+  if (!recordId || !client) {
     onData(null);
     return () => undefined;
   }
@@ -227,7 +231,7 @@ const subscribeToRecord = (
     .then(onData)
     .catch((err) => onError?.(err instanceof Error ? err : new Error(String(err))));
 
-  const channel = supabase
+  const channel = client
     .channel(`public:beneficiaries:${recordId}`)
     .on(
       'postgres_changes',
@@ -248,7 +252,7 @@ const subscribeToRecord = (
     .subscribe();
 
   return () => {
-    supabase.removeChannel(channel);
+    client.removeChannel(channel);
   };
 };
 
