@@ -15,6 +15,7 @@ import { useT } from 'lingo.dev/react';
 
 import { AppIcon } from '@/components/atoms/app-icon';
 import { AppText } from '@/components/atoms/app-text';
+import { CameraGuideModal } from '@/components/molecules/CameraGuideModal';
 import type { AppTheme } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { MobileInputScreen } from '@/screens/auth/mobile-input-screen';
@@ -49,6 +50,7 @@ import { ReviewerDashboardScreen } from '@/screens/reviewer/dashboard-screen';
 import { ReviewDetailScreen } from '@/screens/reviewer/review-detail-screen';
 import { ReviewerSubmissionListScreen } from '@/screens/reviewer/submission-list-screen';
 import { useAuthStore } from '@/state/authStore';
+import { useCameraGuideStore } from '@/state/cameraGuideStore';
 import type {
     AuthStackParamList,
     BeneficiaryDrawerParamList,
@@ -111,6 +113,7 @@ const AuthNavigator = () => (
 const BeneficiaryTabNavigator = () => {
   const theme = useAppTheme();
   const [tabsHidden, setTabsHidden] = useState(false);
+  const { isVisible, open, proceed } = useCameraGuideStore();
   const tabScreenOptions = useMemo<BottomTabNavigationOptions>(
     () => ({
       headerShown: false,
@@ -172,6 +175,12 @@ const BeneficiaryTabNavigator = () => {
           options={{
             tabBarIcon: ({ color }) => <AppIcon name="hand-coin" size={32} color={color} />,
           }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              open(() => navigation.navigate('UploadEvidence'));
+            },
+          })}
         />
         <Tab.Screen
           name="Profile"
@@ -191,6 +200,8 @@ const BeneficiaryTabNavigator = () => {
           <AppIcon name={tabsHidden ? 'chevron-up' : 'chevron-down'} size={18} color="#111827" />
         </TouchableOpacity>
       </View>
+
+      <CameraGuideModal visible={isVisible} onClose={proceed} onContinue={proceed} />
     </View>
   );
 };
