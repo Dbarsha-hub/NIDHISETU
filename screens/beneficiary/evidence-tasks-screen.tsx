@@ -173,7 +173,64 @@ function EvidenceTasksScreen() {
         ) : requirements.length === 0 ? (
           <Text style={styles.emptyText}>No evidence tasks available.</Text>
         ) : (
-          requirements.map(renderCard)
+          requirements.map((req) => {
+            const submission = submissions.find(s => s.requirementId === req.id);
+            return (
+            <TouchableOpacity 
+              key={req.id} 
+              style={[styles.card, { borderColor: theme.colors.border }]}
+              disabled={req.status !== 'submitted' || !submission}
+              onPress={() => {
+                if (submission) {
+                  navigation.navigate('SubmissionDetail', { submission });
+                }
+              }}
+              activeOpacity={0.7}
+            > 
+              <View style={styles.cardHeader}>
+                <AppIcon name="clipboard-text-outline" size={20} color={theme.colors.secondary} />
+                <View style={{ flex: 1 }}>
+                  <AppText variant="titleSmall" color="text">{req.label}</AppText>
+                  {req.instructions ? (
+                    <AppText variant="labelSmall" color="muted" numberOfLines={2}>{req.instructions}</AppText>
+                  ) : null}
+                  <View style={styles.metaRow}>
+                    <AppText variant="labelSmall" color="muted">Camera: {req.permissions?.camera === false ? 'Disabled' : 'Allowed'}</AppText>
+                    <AppText variant="labelSmall" color="muted">Files: {req.permissions?.fileUpload === false ? 'Disabled' : 'Allowed'}</AppText>
+                  </View>
+                  <View style={styles.metaRow}>
+                    {req.response_type ? (
+                      <AppText variant="labelSmall" color="muted">Type: {req.response_type}</AppText>
+                    ) : null}
+                    {req.model ? (
+                      <AppText variant="labelSmall" color="muted">Model: {req.model}</AppText>
+                    ) : null}
+                    {req.image_quality ? (
+                      <AppText variant="labelSmall" color="muted">Quality: {req.image_quality}</AppText>
+                    ) : null}
+                  </View>
+                </View>
+              </View>
+              {submission || req.status === 'submitted' ? (
+                <AppButton
+                  label="Pending for Review"
+                  tone="secondary"
+                  icon="clock-check-outline"
+                  disabled
+                  style={styles.uploadButton}
+                />
+              ) : (
+                <AppButton
+                  label="Upload"
+                  tone="secondary"
+                  icon="cloud-upload-outline"
+                  onPress={() => handleUploadPress(req)}
+                  style={styles.uploadButton}
+                />
+              )}
+            </TouchableOpacity>
+            );
+          })
         )}
       </ScrollView>
     </View>

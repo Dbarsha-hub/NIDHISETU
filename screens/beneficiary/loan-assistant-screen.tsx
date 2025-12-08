@@ -453,6 +453,12 @@ export const BeneficiaryLoanAssistantScreen = () => {
                   )}
                 </View>
               )}
+
+            {isSending && (
+              <View style={[styles.messageBubble, styles.botBubble]}>
+                <TypingIndicator theme={theme} />
+              </View>
+            )}
             </ScrollView>
           </View>
 
@@ -613,6 +619,10 @@ const createStyles = (theme: AppTheme) => {
       elevation: 6,
       gap: 14,
     },
+    heroTextBlock: {
+      flex: 1,
+      justifyContent: 'center',
+    },
     heroAvatarShadow: {
       width: 64,
       height: 64,
@@ -633,10 +643,7 @@ const createStyles = (theme: AppTheme) => {
       justifyContent: 'center',
     },
 
-    heroTextBlock: {
-      flex: 1,
-      gap: 6,
-    },
+
     heroTitle: {
       fontSize: 18,
       fontWeight: '700',
@@ -647,21 +654,14 @@ const createStyles = (theme: AppTheme) => {
       color: theme.colors.subtext,
     },
 
+
     welcomeBubble: {
-      width: '100%',
       flexDirection: 'row',
-      alignItems: 'center',
-      padding: 14,
+      alignItems: 'flex-start',
+      backgroundColor: theme.colors.surfaceVariant,
+      padding: 16,
       borderRadius: 16,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
-      shadowColor: shadowLighter,
-      shadowOffset: { width: 0, height: 6 },
-      shadowOpacity: isDark ? 0.28 : 0.22,
-      shadowRadius: 12,
-      elevation: 6,
-      gap: 10,
+      width: '100%',
     },
     welcomeIcon: {
       marginRight: 8,
@@ -709,7 +709,6 @@ const createStyles = (theme: AppTheme) => {
     },
     inputWrapper: {
       position: "absolute",
-      bottom: 0,
       left: 0,
       right: 0,
       paddingHorizontal: 12,
@@ -796,6 +795,9 @@ const createStyles = (theme: AppTheme) => {
       justifyContent: 'center',
       marginLeft: 8,
     },
+    messagesWrapper: {
+      flex: 1,
+    },
     messagesList: {
       padding: 20,
       gap: 14,
@@ -821,6 +823,7 @@ const createStyles = (theme: AppTheme) => {
       borderBottomLeftRadius: 8,
       borderWidth: 1,
       borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
     },
     messageText: {
       fontSize: 15,
@@ -890,9 +893,8 @@ const markdownStyles = (theme: AppTheme) =>
     },
   });
 
-export default BeneficiaryLoanAssistantScreen;
-
 const typingStyles = StyleSheet.create({
   container: { flexDirection: "row", gap: 6, alignItems: "center" },
   dot: { width: 8, height: 8, borderRadius: 4 },
 });
+
