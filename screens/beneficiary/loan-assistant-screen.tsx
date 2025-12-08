@@ -603,50 +603,51 @@ const createStyles = (theme: AppTheme) =>
     },
   });
 
-const markdownStyles = (theme: AppTheme) => ({
-  body: {
-    color: theme.colors.text,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  paragraph: {
-    marginTop: 2,
-    marginBottom: 6,
-  },
-  bullet_list: {
-    marginVertical: 4,
-  },
-  ordered_list: {
-    marginVertical: 4,
-  },
-  list_item: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-  },
-  bullet_list_icon: {
-    color: theme.colors.text,
-  },
-  ordered_list_icon: {
-    color: theme.colors.text,
-  },
-  code_inline: {
-    backgroundColor: `${theme.colors.surface}DD`,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: `${theme.colors.border}AA`,
-    fontFamily: 'monospace',
-  },
-  code_block: {
-    backgroundColor: `${theme.colors.surface}DD`,
-    padding: 10,
-    borderRadius: 10,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: `${theme.colors.border}AA`,
-    fontFamily: 'monospace',
-  },
-});
+const markdownStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    body: {
+      color: theme.colors.text,
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    paragraph: {
+      marginTop: 2,
+      marginBottom: 6,
+    },
+    bullet_list: {
+      marginVertical: 4,
+    },
+    ordered_list: {
+      marginVertical: 4,
+    },
+    list_item: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+    },
+    bullet_list_icon: {
+      color: theme.colors.text,
+    },
+    ordered_list_icon: {
+      color: theme.colors.text,
+    },
+    code_inline: {
+      backgroundColor: `${theme.colors.surface}DD`,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 6,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: `${theme.colors.border}AA`,
+      fontFamily: 'monospace',
+    },
+    code_block: {
+      backgroundColor: `${theme.colors.surface}DD`,
+      padding: 10,
+      borderRadius: 10,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: `${theme.colors.border}AA`,
+      fontFamily: 'monospace',
+    },
+  });
 
 export default BeneficiaryLoanAssistantScreen;
 const typingStyles = StyleSheet.create({
