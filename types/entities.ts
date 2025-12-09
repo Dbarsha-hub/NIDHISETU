@@ -82,6 +82,7 @@ export interface BaseProfile {
   name: string;
   mobile: string;
   role: UserRole;
+  email?: string;
   avatarUrl?: string;
 }
 

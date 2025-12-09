@@ -1,28 +1,28 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
-  createDrawerNavigator,
-  DrawerContentComponentProps,
-  DrawerContentScrollView,
-  DrawerItemList,
+    createDrawerNavigator,
+    DrawerContentComponentProps,
+    DrawerContentScrollView,
+    DrawerItemList,
 } from '@react-navigation/drawer';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useMemo, useRef, useState } from 'react';
-import { Alert, Animated, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useT } from 'lingo.dev/react';
+import { useMemo } from 'react';
+import { Alert, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 import { AppIcon } from '@/components/atoms/app-icon';
 import { AppText } from '@/components/atoms/app-text';
 import { CameraGuideModal } from '@/components/molecules/CameraGuideModal';
 import type { AppTheme } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { EnterPinScreen } from '@/screens/auth/EnterPinScreen';
 import { MobileInputScreen } from '@/screens/auth/mobile-input-screen';
 import { OnboardingScreen } from '@/screens/auth/onboarding-screen';
 import { OtpVerificationScreen } from '@/screens/auth/otp-verification-screen';
 import { SetPinScreen } from '@/screens/auth/SetPinScreen';
-import { EnterPinScreen } from '@/screens/auth/EnterPinScreen';
 import { WelcomeScreen } from '@/screens/auth/welcome-screen';
 import { ContactOfficerScreen } from '@/screens/beneficiary/contact-officer-screen';
 import { BeneficiaryDashboardScreen } from '@/screens/beneficiary/dashboard-screen';
@@ -41,8 +41,10 @@ import { EvidenceTasksScreen } from '@/screens/beneficiary/evidence-tasks-screen
 import { SubsidyCalculatorScreen } from '@/screens/beneficiary/subsidy-calculator-screen';
 import { SyncStatusScreen } from '@/screens/beneficiary/sync-status-screen';
 import { UploadEvidenceScreen } from '@/screens/beneficiary/upload-evidence-screen';
+import { ActiveSessionsScreen } from '@/screens/officer/active-sessions-screen';
 import { BeneficiaryFormScreen } from '@/screens/officer/beneficiary-form-screen';
 import { BeneficiaryListScreen } from '@/screens/officer/beneficiary-list-screen';
+import { ChangePasswordScreen } from '@/screens/officer/change-password-screen';
 import { OfficerDashboardScreen } from '@/screens/officer/dashboard-screen';
 import { OfficerSubmissionDetailScreen } from '@/screens/officer/officer-submission-detail-screen';
 import { VerificationDetailScreen } from '@/screens/officer/verification-detail-screen';
@@ -352,7 +354,6 @@ const officerIconMap = {
   VerificationTasks: 'playlist-check',
   Reports: 'chart-box',
   Notifications: 'bell',
-  Profile: 'account-circle',
   Settings: 'cog',
   Support: 'lifebuoy',
 } as const;
@@ -408,11 +409,6 @@ const OfficerDrawerNavigator = () => {
         options={{ title: 'Notifications' }}
       />
       <OfficerDrawer.Screen
-        name="Profile"
-        component={require('@/screens/officer/profile-screen').ProfileScreen}
-        options={{ title: 'Profile' }}
-      />
-      <OfficerDrawer.Screen
         name="Settings"
         component={require('@/screens/officer/settings-screen').SettingsScreen}
         options={{ title: 'Settings' }}
@@ -432,6 +428,8 @@ const OfficerNavigator = () => {
       <OfficerStack.Screen name="OfficerRoot" component={OfficerDrawerNavigator} />
       <OfficerStack.Screen name="VerificationDetail" component={VerificationDetailScreen} />
       <OfficerStack.Screen name="OfficerSubmissionDetail" component={OfficerSubmissionDetailScreen} />
+      <OfficerStack.Screen name="ActiveSessions" component={ActiveSessionsScreen} />
+      <OfficerStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
     </OfficerStack.Navigator>
   );
 };

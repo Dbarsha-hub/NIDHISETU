@@ -38,9 +38,10 @@ export type OfficerStackParamList = {
   OfficerSubmissionDetail: { submission: any; beneficiaryId: string };
   Reports: undefined;
   Notifications: undefined;
-  Profile: undefined;
   Settings: undefined;
   Support: undefined;
+  ActiveSessions: undefined;
+  ChangePassword: undefined;
 };
 
 export type ReviewerStackParamList = {
