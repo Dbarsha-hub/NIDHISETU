@@ -10,7 +10,7 @@ import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useT } from 'lingo.dev/react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 import { AppIcon } from '@/components/atoms/app-icon';

@@ -1,14 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useCallback } from 'react';
-import { ActivityIndicator, FlatList, Image, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useCallback, useMemo } from 'react';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { AppText } from '@/components/atoms/app-text';
 import { WaveHeader } from '@/components/molecules/wave-header';
 import { useAppTheme } from '@/hooks/use-app-theme';
-<<<<<<< HEAD
-import { useOfficerTasks } from '@/hooks/use-officer-tasks';
-=======
 import { useOfficerBeneficiaries } from '@/hooks/use-officer-beneficiaries';
 
 type TaskItem = {
@@ -30,38 +27,13 @@ type TaskItem = {
   assignedAt?: string;
   detailId?: string;
 };
->>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
 
 export const VerificationTasksScreen = () => {
   const navigation = useNavigation<any>();
   const theme = useAppTheme();
   
-  const { tasks: submissions, isLoading, refetch, isRefetching } = useOfficerTasks();
+  const { records, isLoading, isRefreshing, refresh } = useOfficerBeneficiaries();
 
-<<<<<<< HEAD
-  const onRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
-
-  const SubmissionCard = ({ item }: { item: any }) => (
-    <TouchableOpacity 
-      style={styles.card} 
-      activeOpacity={0.9} 
-      onPress={() => navigation.navigate('OfficerSubmissionDetail', { submission: item, beneficiaryId: item.beneficiaryId })}
-    >
-      <View style={styles.cardRow}>
-        <Image 
-          source={{ uri: item.thumbnailUrl || item.mediaUrl || 'https://placehold.co/100x100/png' }} 
-          style={styles.thumbnail}
-        />
-        <View style={styles.cardContent}>
-          <View style={styles.headerRow}>
-            <AppText style={styles.assetName} numberOfLines={1}>{item.assetName}</AppText>
-            <View style={styles.timeBadge}>
-              <Ionicons name="time-outline" size={12} color="#6B7280" />
-              <AppText style={styles.timeText}>{new Date(item.submittedAt || item.capturedAt).toLocaleDateString()}</AppText>
-            </View>
-=======
   const data = useMemo<TaskItem[]>(() => {
     return records
       .filter((record) => (record.metadata?.status ?? '').toLowerCase() !== 'approved')
@@ -78,10 +50,14 @@ export const VerificationTasksScreen = () => {
         docCount: record.metadata?.docCount ?? 0,
         loanId: record.metadata?.loanId ?? record.loanId,
         bank: record.bankName,
-        loanAmount: record.metadata?.loanAmount,
+        loanAmount: Number(record.sanctionAmount || record.metadata?.loanAmount || 0),
         lastSynced: record.metadata?.lastSynced,
       }));
   }, [records]);
+
+  const onRefresh = useCallback(() => {
+    refresh();
+  }, [refresh]);
 
   const statusColor = (status: string) => {
     const lowered = status.toLowerCase();
@@ -96,46 +72,56 @@ export const VerificationTasksScreen = () => {
     return `₹${value.toLocaleString('en-IN')}`;
   };
 
+  const formatTimestamp = (value?: string) => {
+    if (!value) {
+      return 'Just now';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+    return date.toLocaleDateString();
+  };
+  
+  const formatAssigned = (value?: string) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString();
+  };
+
   const TaskCard = ({ item }: { item: TaskItem }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.headerLeft}>
           <View style={styles.avatarPlaceholder}>
             <AppText style={styles.avatarText}>{item.name.charAt(0)}</AppText>
->>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
           </View>
           
-          <AppText style={styles.beneficiaryName} numberOfLines={1}>
-            {item.beneficiary?.fullName || 'Unknown Beneficiary'}
-          </AppText>
-          <AppText style={styles.villageName} numberOfLines={1}>
-            {item.beneficiary?.village || 'Village N/A'}
-          </AppText>
-
-          <View style={styles.footerRow}>
-             <View style={styles.statusBadge}>
-                <View style={styles.statusDot} />
-                <AppText style={styles.statusText}>Pending Review</AppText>
-             </View>
-             
-             <TouchableOpacity 
-               style={styles.verifyButton}
-               onPress={() => navigation.navigate('OfficerSubmissionDetail', { submission: item, beneficiaryId: item.beneficiaryId })}
-             >
-                <AppText style={styles.verifyButtonText}>Verify</AppText>
-                <Ionicons name="arrow-forward" size={14} color="white" />
-             </TouchableOpacity>
+          <View style={styles.identityBlock}>
+            <AppText style={styles.beneficiaryName} numberOfLines={1}>
+                {item.name}
+            </AppText>
+            <AppText style={styles.villageName} numberOfLines={1}>
+                {item.village || 'Village N/A'}
+            </AppText>
           </View>
         </View>
-<<<<<<< HEAD
-=======
+        
+        <View style={styles.statusBadge}>
+            <View style={[styles.statusDot, { backgroundColor: statusColor(item.status) }]} />
+            <AppText style={[styles.statusText, { color: statusColor(item.status) }]}>{item.status}</AppText>
+        </View>
+      </View>
+
+      <View style={styles.metaContainer}>
         <View style={styles.metaItem}>
           <AppText style={styles.metaLabel}>Bank</AppText>
           <AppText style={styles.metaValue}>{item.bank ?? '—'}</AppText>
         </View>
         <View style={styles.metaItem}>
-          <AppText style={styles.metaLabel}>Status</AppText>
-          <AppText style={[styles.metaValue, { color: statusColor(item.status) }]}>{item.status}</AppText>
+            <AppText style={styles.metaLabel}>Loan Amount</AppText>
+            <AppText style={styles.metaValue}>{formatCurrency(item.loanAmount)}</AppText>
         </View>
         <View style={styles.metaItem}>
           <AppText style={styles.metaLabel}>Assigned</AppText>
@@ -201,6 +187,14 @@ export const VerificationTasksScreen = () => {
       ) : null}
 
       <View style={styles.cardFooter}>
+         <TouchableOpacity 
+           style={styles.verifyButton}
+           onPress={() => navigation.navigate('VerificationDetail', { id: item.detailId ?? item.id })}
+         >
+            <AppText style={styles.verifyButtonText}>Verify</AppText>
+            <Ionicons name="arrow-forward" size={14} color="white" />
+         </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.reviewButton}
           accessibilityLabel={`View details for ${item.name}`}
@@ -209,7 +203,6 @@ export const VerificationTasksScreen = () => {
           <AppText style={styles.reviewButtonText}>View Details</AppText>
           <Ionicons name="arrow-forward" size={16} color="white" />
         </TouchableOpacity>
->>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
       </View>
     </View>
   );
@@ -232,66 +225,25 @@ export const VerificationTasksScreen = () => {
       <WaveHeader title="Verification Tasks" onBack={() => navigation.goBack()} />
 
       <View style={styles.contentContainer}>
-<<<<<<< HEAD
-        <FlatList
-          contentContainerStyle={styles.listContent}
-          data={submissions}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <SubmissionCard item={item} />}
-          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />}
-          ListEmptyComponent={
-            isLoading ? (
-              <ActivityIndicator style={styles.loader} color={theme.colors.primary} />
-            ) : (
-              <View style={styles.emptyState}>
-                <Ionicons name="checkmark-circle-outline" size={48} color="#10B981" />
-                <AppText style={styles.emptyText}>No pending verifications.</AppText>
-              </View>
-            )
-          }
-        />
-=======
         {isLoading && !data.length ? (
-          <View style={styles.initialLoader}>
+            <View style={styles.initialLoader}>
             <ActivityIndicator size="large" color={theme.colors.primary} />
-          </View>
+            </View>
         ) : (
-          <FlatList
+            <FlatList
             contentContainerStyle={styles.listContent}
             data={data}
             keyExtractor={(t) => t.id}
             renderItem={({ item }) => <TaskCard item={item} />}
-            refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refresh} />}
+            refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
             ListEmptyComponent={renderEmpty}
-          />
+            />
         )}
->>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
       </View>
     </View>
   );
 };
 
-<<<<<<< HEAD
-=======
-const formatTimestamp = (value?: string) => {
-  if (!value) {
-    return 'Just now';
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return date.toLocaleDateString();
-};
-
-const formatAssigned = (value?: string) => {
-  if (!value) return '—';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString();
-};
-
->>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -309,64 +261,50 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: 'white',
     borderRadius: 16,
-    padding: 12,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
-  cardRow: {
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  headerLeft: {
     flexDirection: 'row',
     gap: 12,
-  },
-  thumbnail: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-    backgroundColor: '#E5E7EB',
-  },
-  cardContent: {
     flex: 1,
-    justifyContent: 'space-between',
-    paddingVertical: 2,
   },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  avatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E0E7FF',
     alignItems: 'center',
-    marginBottom: 2,
+    justifyContent: 'center',
   },
-  assetName: {
+  avatarText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4F46E5',
+  },
+  identityBlock: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  beneficiaryName: {
     fontSize: 15,
     fontWeight: '600',
     color: '#1F2937',
-    flex: 1,
-    marginRight: 8,
-  },
-  timeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  timeText: {
-    fontSize: 11,
-    color: '#6B7280',
-  },
-  beneficiaryName: {
-    fontSize: 13,
-    color: '#374151',
-    fontWeight: '500',
+    marginBottom: 2,
   },
   villageName: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#6B7280',
-    marginBottom: 8,
-  },
-  footerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   statusBadge: {
     flexDirection: 'row',
@@ -388,18 +326,114 @@ const styles = StyleSheet.create({
     color: '#92400E',
     fontWeight: '600',
   },
-  verifyButton: {
+  metaContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  metaItem: {
+    gap: 4,
+  },
+  metaLabel: {
+    fontSize: 11,
+    color: '#6B7280',
+    textTransform: 'uppercase',
+  },
+  metaValue: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#374151',
+  },
+  syncedRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#7C3AED',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-    gap: 4,
+    gap: 6,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  syncedText: {
+    fontSize: 12,
+    color: '#059669',
+  },
+  cardBody: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  infoText: {
+    fontSize: 13,
+    color: '#4B5563',
+  },
+  sectionBlock: {
+    marginTop: 12,
+    gap: 8,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#374151',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  bulletRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  bulletText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#4B5563',
+    lineHeight: 18,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  verifyButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#4F46E5',
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 8,
   },
   verifyButtonText: {
     color: 'white',
-    fontSize: 12,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  reviewButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#6B7280',
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 8,
+  },
+  reviewButtonText: {
+    color: 'white',
+    fontSize: 13,
     fontWeight: '600',
   },
   loader: {
