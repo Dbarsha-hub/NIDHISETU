@@ -32,37 +32,46 @@ export const EvidenceTasksScreen = () => {
   useEffect(() => {
     if (!beneficiaryId && !beneficiaryMobile) return;
     let active = true;
-    const load = async () => {
-      setLoading(true);
-      try {
-        const primaryKey = beneficiaryId || beneficiaryMobile || '';
-        const [primaryReq, primarySub] = await Promise.all([
-          primaryKey ? evidenceRequirementApi.list(primaryKey) : [],
-          primaryKey ? submissionRepository.listByBeneficiary(primaryKey) : []
-        ]);
-        
-        if (!active) return;
-        
-        let foundReq = primaryReq;
-        let foundSub = primarySub;
+      const load = async () => {
+        setLoading(true);
+        try {
+          const primaryKey = beneficiaryId || beneficiaryMobile || '';
+          
+          if (!primaryKey) {
+             setLoading(false);
+             return;
+          }
 
-        if (!primaryReq.length && beneficiaryMobile && beneficiaryMobile !== primaryKey) {
-          const fallbackReq = await evidenceRequirementApi.list(beneficiaryMobile);
-          // submissions are bound to the specific ID usually, but maybe fallback too?
-          // For safety, let's just stick to requirements fallback logic for now
-          // or assume submission fetch via primaryKey is sufficient
-           if (!active) return;
-           foundReq = fallbackReq;
+          const [primaryReq, primarySub] = await Promise.all([
+            evidenceRequirementApi.list(primaryKey).catch(err => {
+                console.error('Failed to load requirements:', err);
+                return [];
+            }),
+            submissionRepository.listByBeneficiary(primaryKey).catch(err => {
+                console.error('Failed to load submissions:', err);
+                return [];
+            })
+          ]);
+          
+          if (!active) return;
+          
+          let foundReq = primaryReq;
+          let foundSub = primarySub;
+
+          if (!primaryReq.length && beneficiaryMobile && beneficiaryMobile !== primaryKey) {
+            const fallbackReq = await evidenceRequirementApi.list(beneficiaryMobile).catch(() => []);
+             if (!active) return;
+             if (fallbackReq.length) foundReq = fallbackReq;
+          }
+          setRequirements(foundReq);
+          setSubmissions(foundSub);
+        } catch (err) {
+          console.error('Load evidence tasks failed', err);
+          if (active) Alert.alert('Error', 'Unable to load evidence tasks');
+        } finally {
+          if (active) setLoading(false);
         }
-        setRequirements(foundReq);
-        setSubmissions(foundSub);
-      } catch (err) {
-        console.error('Load evidence tasks failed', err);
-        if (active) Alert.alert('Error', 'Unable to load evidence tasks');
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
+      };
     load();
     return () => {
       active = false;
