@@ -27,6 +27,7 @@ const materializeSubmission = (data: any): SubmissionEvidence => {
     status: data.status ?? 'pending',
     isDraft: data.isDraft,
     offlineId: data.offlineId,
+    requirementId: data.requirementId,
   };
 };
 
@@ -100,6 +101,7 @@ const createSubmission = async (beneficiaryId: string, payload: NewSubmissionPay
     status: payload.status ?? 'submitted',
     isDraft: payload.isDraft ?? false,
     offlineId: payload.offlineId ?? null,
+    requirementId: payload.requirementId ?? null,
   };
 
   const { data, error } = await supabase
@@ -154,6 +156,24 @@ const updateAIAnalysis = async (id: string, aiAnalysis: any): Promise<void> => {
   if (error) throw error;
 };
 
+const listAllPending = async (): Promise<(SubmissionEvidence & { beneficiary?: any })[]> => {
+  if (!supabase) throw new Error('Supabase not initialized');
+
+  const { data, error } = await supabase
+    .from(COLLECTION_NAME)
+    .select('*, beneficiary:beneficiaries(*)')
+    .eq('status', 'submitted')
+    .order('submittedAt', { ascending: true });
+
+  if (error) throw error;
+  
+  return (data || []).map((item: any) => ({
+    ...materializeSubmission(item),
+    beneficiaryId: item.beneficiaryId,
+    beneficiary: item.beneficiary,
+  }));
+};
+
 export const submissionRepository = {
   listByBeneficiary,
   subscribeToBeneficiarySubmissions,
@@ -161,4 +181,5 @@ export const submissionRepository = {
   createSubmissions,
   updateStatus,
   updateAIAnalysis,
+  listAllPending,
 };

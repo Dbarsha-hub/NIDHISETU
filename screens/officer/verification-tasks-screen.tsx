@@ -1,11 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useMemo } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useCallback } from 'react';
+import { ActivityIndicator, FlatList, Image, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { AppText } from '@/components/atoms/app-text';
 import { WaveHeader } from '@/components/molecules/wave-header';
 import { useAppTheme } from '@/hooks/use-app-theme';
+<<<<<<< HEAD
+import { useOfficerTasks } from '@/hooks/use-officer-tasks';
+=======
 import { useOfficerBeneficiaries } from '@/hooks/use-officer-beneficiaries';
 
 type TaskItem = {
@@ -27,13 +30,38 @@ type TaskItem = {
   assignedAt?: string;
   detailId?: string;
 };
-
+>>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
 
 export const VerificationTasksScreen = () => {
   const navigation = useNavigation<any>();
   const theme = useAppTheme();
-  const { records, isLoading, isRefreshing, refresh } = useOfficerBeneficiaries();
+  
+  const { tasks: submissions, isLoading, refetch, isRefetching } = useOfficerTasks();
 
+<<<<<<< HEAD
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const SubmissionCard = ({ item }: { item: any }) => (
+    <TouchableOpacity 
+      style={styles.card} 
+      activeOpacity={0.9} 
+      onPress={() => navigation.navigate('OfficerSubmissionDetail', { submission: item, beneficiaryId: item.beneficiaryId })}
+    >
+      <View style={styles.cardRow}>
+        <Image 
+          source={{ uri: item.thumbnailUrl || item.mediaUrl || 'https://placehold.co/100x100/png' }} 
+          style={styles.thumbnail}
+        />
+        <View style={styles.cardContent}>
+          <View style={styles.headerRow}>
+            <AppText style={styles.assetName} numberOfLines={1}>{item.assetName}</AppText>
+            <View style={styles.timeBadge}>
+              <Ionicons name="time-outline" size={12} color="#6B7280" />
+              <AppText style={styles.timeText}>{new Date(item.submittedAt || item.capturedAt).toLocaleDateString()}</AppText>
+            </View>
+=======
   const data = useMemo<TaskItem[]>(() => {
     return records
       .filter((record) => (record.metadata?.status ?? '').toLowerCase() !== 'approved')
@@ -74,24 +102,33 @@ export const VerificationTasksScreen = () => {
         <View style={styles.headerLeft}>
           <View style={styles.avatarPlaceholder}>
             <AppText style={styles.avatarText}>{item.name.charAt(0)}</AppText>
+>>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
           </View>
-          <View>
-            <AppText style={styles.cardTitle}>{item.name}</AppText>
-            <AppText style={styles.cardSubtitle}>{item.village || 'Unknown Location'}</AppText>
-          </View>
-        </View>
-        <View style={[styles.priorityBadge, item.priority === 'High' ? styles.highPriority : styles.normalPriority]}>
-          <AppText style={[styles.priorityText, item.priority === 'High' ? styles.highPriorityText : styles.normalPriorityText]}>
-            {item.priority}
+          
+          <AppText style={styles.beneficiaryName} numberOfLines={1}>
+            {item.beneficiary?.fullName || 'Unknown Beneficiary'}
           </AppText>
-        </View>
-      </View>
+          <AppText style={styles.villageName} numberOfLines={1}>
+            {item.beneficiary?.village || 'Village N/A'}
+          </AppText>
 
-      <View style={styles.metaGrid}>
-        <View style={styles.metaItem}>
-          <AppText style={styles.metaLabel}>Loan ID</AppText>
-          <AppText style={styles.metaValue}>{item.loanId ?? '—'}</AppText>
+          <View style={styles.footerRow}>
+             <View style={styles.statusBadge}>
+                <View style={styles.statusDot} />
+                <AppText style={styles.statusText}>Pending Review</AppText>
+             </View>
+             
+             <TouchableOpacity 
+               style={styles.verifyButton}
+               onPress={() => navigation.navigate('OfficerSubmissionDetail', { submission: item, beneficiaryId: item.beneficiaryId })}
+             >
+                <AppText style={styles.verifyButtonText}>Verify</AppText>
+                <Ionicons name="arrow-forward" size={14} color="white" />
+             </TouchableOpacity>
+          </View>
         </View>
+<<<<<<< HEAD
+=======
         <View style={styles.metaItem}>
           <AppText style={styles.metaLabel}>Bank</AppText>
           <AppText style={styles.metaValue}>{item.bank ?? '—'}</AppText>
@@ -172,6 +209,7 @@ export const VerificationTasksScreen = () => {
           <AppText style={styles.reviewButtonText}>View Details</AppText>
           <Ionicons name="arrow-forward" size={16} color="white" />
         </TouchableOpacity>
+>>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
       </View>
     </View>
   );
@@ -194,6 +232,25 @@ export const VerificationTasksScreen = () => {
       <WaveHeader title="Verification Tasks" onBack={() => navigation.goBack()} />
 
       <View style={styles.contentContainer}>
+<<<<<<< HEAD
+        <FlatList
+          contentContainerStyle={styles.listContent}
+          data={submissions}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <SubmissionCard item={item} />}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />}
+          ListEmptyComponent={
+            isLoading ? (
+              <ActivityIndicator style={styles.loader} color={theme.colors.primary} />
+            ) : (
+              <View style={styles.emptyState}>
+                <Ionicons name="checkmark-circle-outline" size={48} color="#10B981" />
+                <AppText style={styles.emptyText}>No pending verifications.</AppText>
+              </View>
+            )
+          }
+        />
+=======
         {isLoading && !data.length ? (
           <View style={styles.initialLoader}>
             <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -208,11 +265,14 @@ export const VerificationTasksScreen = () => {
             ListEmptyComponent={renderEmpty}
           />
         )}
+>>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
       </View>
     </View>
   );
 };
 
+<<<<<<< HEAD
+=======
 const formatTimestamp = (value?: string) => {
   if (!value) {
     return 'Just now';
@@ -230,6 +290,8 @@ const formatAssigned = (value?: string) => {
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString();
 };
+
+>>>>>>> 15cf3b4 (modify the ui of officer dashboard,report and setting screen)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
